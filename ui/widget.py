@@ -83,6 +83,10 @@ class Battery_alert(QWidget):
 
     def run_battery_alert(self):
         self.hide()
+        if len(self.alert_text_layout.children()) > 0:
+            for i in self.alert_text_layout.children():
+                self.alert_text_layout.removeWidget(i);
+        
         battery = psutil.sensors_battery();
         is_plugged_in = battery.power_plugged;
 
@@ -90,19 +94,24 @@ class Battery_alert(QWidget):
 
         if is_plugged_in:
             while battery.percent < self.max_percent.value():
-                battery = psutil.sensors_battery()
+                battery = psutil.sensors_battery();
             else: 
-                print("level max")
+                line_1 = QLabel("Alert");
+                line_2 = QLabel("Battery Has Reached A Cahrge of " + str(self.max_percent.value()) + "%");
+        
+                self.alert_text_layout.addWidget(line_1);
+                self.alert_text_layout.addWidget(line_2);
+                self.show();
         else: 
             while battery.percent > self.min_percent.value():
                 time.sleep(20)
-                battery = psutil.sensors_battery()
+                battery = psutil.sensors_battery();
             else: 
                 line_1 = QLabel('Alert!');
-                line_2 = QLabel('Battery Has Reached ' + str(self.min_percent.value()) + "%")
+                line_2 = QLabel('Battery Has Reached ' + str(self.min_percent.value()) + "%");
 
-                self.alert_text_layout.addWidget(line_1)
-                self.alert_text_layout.addWidget(line_2)
-                self.show()
+                self.alert_text_layout.addWidget(line_1);
+                self.alert_text_layout.addWidget(line_2);
+                self.show();
                           
 
