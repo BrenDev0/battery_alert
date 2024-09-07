@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import *
 from PySide6.QtCore import Qt
+import psutil
+import time
 
 
 class Battery_alert(QWidget):
@@ -35,7 +37,17 @@ class Battery_alert(QWidget):
         self.min_edit.setMaximumWidth(50)
         self.min_edit.setMaximumHeight(50)
 
-        self.button = QPushButton('OK')
+        ok_button = QPushButton('OK')
+        ok_button.setMaximumWidth(50)
+        ok_button.clicked.connect(self.run_battery_alert)
+    
+
+        close_button = QPushButton('Close')
+        close_button.setMaximumWidth(50)
+
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(ok_button)
+        button_layout.addWidget(close_button)
 
         max_value_slider_layout = QHBoxLayout()
         max_value_slider_layout.addWidget(self.max_edit)
@@ -53,11 +65,13 @@ class Battery_alert(QWidget):
         min_layout.addWidget(min_label)
         min_layout.addLayout(min_value_slider_layout)
 
+        self.alert_text_layout = QVBoxLayout()
 
         layout = QVBoxLayout()
         layout.addLayout(max_layout)
         layout.addLayout(min_layout)
-        layout.addWidget(self.button)
+        layout.addLayout(self.alert_text_layout)
+        layout.addLayout(button_layout)
 
         self.setLayout(layout)
 
@@ -65,4 +79,30 @@ class Battery_alert(QWidget):
         self.max_edit.setText(str(self.max_percent.value()) + '%');
 
     def min_slider_value(self):
-        self.min_edit.setText(str(self.min_percent.value()) + '%')
+        self.min_edit.setText(str(self.min_percent.value()) + '%');
+
+    def run_battery_alert(self):
+        self.hide()
+        battery = psutil.sensors_battery();
+        is_plugged_in = battery.power_plugged;
+
+        print('running...')
+
+        if is_plugged_in:
+            while battery.percent < self.max_percent.value():
+                battery = psutil.sensors_battery()
+            else: 
+                print("level max")
+        else: 
+            while battery.percent > self.min_percent.value():
+                time.sleep(20)
+                battery = psutil.sensors_battery()
+            else: 
+                line_1 = QLabel('Alert!');
+                line_2 = QLabel('Battery Has Reached ' + str(self.min_percent.value()) + "%")
+
+                self.alert_text_layout.addWidget(line_1)
+                self.alert_text_layout.addWidget(line_2)
+                self.show()
+                          
+
