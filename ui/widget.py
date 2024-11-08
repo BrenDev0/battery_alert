@@ -94,7 +94,9 @@ class Battery_alert(QWidget):
 
         if is_plugged_in:
             while battery.percent < self.max_percent.value():
+                time.sleep(60)
                 battery = psutil.sensors_battery();
+                is_plugged_in = battery.power_plugged;
             else: 
                 line_1 = QLabel("Alert");
                 line_2 = QLabel("Battery Has Reached A Cahrge of " + str(self.max_percent.value()) + "%");
@@ -104,8 +106,9 @@ class Battery_alert(QWidget):
                 self.show();
         else: 
             while battery.percent > self.min_percent.value():
-                time.sleep(20)
+                time.sleep(60)
                 battery = psutil.sensors_battery();
+                is_plugged_in = battery.power_plugged;
             else: 
                 line_1 = QLabel('Alert!');
                 line_2 = QLabel('Battery Has Reached ' + str(self.min_percent.value()) + "%");
